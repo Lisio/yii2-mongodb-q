@@ -1,0 +1,36 @@
+{
+    "name": "lisio/yii2-mongodb-q",
+    "description": "MongoDB Queue Server extension for the Yii framework",
+    "keywords": ["yii2", "mongodb", "queue"],
+    "type": "yii2-extension",
+    "license": "BSD-3-Clause",
+    "support": {
+        "issues": "https://github.com/lisio/yii2-mongodb-q/issues",
+        "source": "https://github.com/lisio/yii2-mongodb-q"
+    },
+    "authors": [
+        {
+            "name": "Andrey Kostin",
+            "email": "andrey@kostin.info"
+        }
+    ],
+    "require": {
+        "php": ">=7.0.0",
+        "yiisoft/yii2": "~2.0.14",
+        "yiisoft/yii2-mongodb": "~2.1.7",
+        "mongodb/mongodb": "~1.4.2",
+        "dmstr/yii2-adminlte-asset": "~2.6.2"
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "yii\\q\\": "src",
+            "yii\\q\\examples\\": "examples"
+        }
+    }
+}
