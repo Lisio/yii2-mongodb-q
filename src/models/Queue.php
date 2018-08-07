@@ -2,13 +2,14 @@
 
 namespace yii\q\models;
 
+use Yii;
 use yii\mongodb\ActiveRecord;
 
 class Queue extends ActiveRecord
 {
     public static function collectionName()
     {
-        return 'queue';
+        return Yii::$app->queue->prefix . '.' . parent::collectionName();
     }
 
     public function attributes()

@@ -13,9 +13,26 @@ use yii\q\models\Queue;
 
 /**
  * Main MongoDB Queue Server class. Used to manipulate queues and jobs through code.
+ *
+ * @property string $prefix prefix for queue collections
  */
 class QueueServer extends Component
 {
+    /**
+     * @var string $prefix prefix for queue collections
+     */
+    public $prefix = 'q';
+
+    /**
+     * Sets prefix for queue collections.
+     *
+     * @param string $prefix prefix for queue collections
+     */
+    public function setCollectionPrefix($prefix)
+    {
+        $this->prefix = $prefix;
+    }
+
     /**
      * Creates queue with the given name.
      *

@@ -4,6 +4,7 @@ namespace yii\q\models;
 
 use MongoDB\BSON\UTCDateTime;
 
+use Yii;
 use yii\mongodb\ActiveRecord;
 
 class Worker extends ActiveRecord
@@ -13,7 +14,7 @@ class Worker extends ActiveRecord
 
     public static function collectionName()
     {
-        return 'worker';
+        return Yii::$app->queue->prefix . '.' . parent::collectionName();
     }
 
     public function attributes()

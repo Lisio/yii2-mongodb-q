@@ -5,6 +5,7 @@ namespace yii\q\models;
 use MongoDB\BSON\Decimal128;
 use MongoDB\BSON\UTCDateTime;
 
+use Yii;
 use yii\mongodb\ActiveRecord;
 
 class Job extends ActiveRecord
@@ -18,7 +19,7 @@ class Job extends ActiveRecord
 
     public static function collectionName()
     {
-        return 'job';
+        return Yii::$app->queue->prefix . '.' . parent::collectionName();
     }
 
     public function attributes()
