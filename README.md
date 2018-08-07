@@ -117,6 +117,26 @@ Yii::$app->queue->jobRetry($job->_id);
 Yii::$app->queue->jobStatus($job->_id);
 ```
 
+### Spawn worker and bind it to all queues
+```
+./yii q/spawn
+```
+
+### Spawn 3 workers and bind them to queues `download` and `report`.
+```
+./yii q/spawn 3 download,report
+```
+
+### Remove dead workers which processes are not found at this host
+```
+./yii q/remove-dead-workers
+```
+
+### Remove stale jobs which keepResultDuration is passed
+```
+./yii q/remove-stale-jobs
+```
+
 GUI
 -----
 
