@@ -28,13 +28,13 @@ class QueueController extends Controller
         for ($i = 1; $i <= $teamSize; ++$i) {
             $pid = pcntl_fork();
             if ($pid == 0) {
-                $worker = new Overseer;
+                $overseer = new Overseer;
 
                 if ($queues !== null) {
-                    $worker->setQueues(explode(',', $queues));
+                    $overseer->setQueues(explode(',', $queues));
                 }
 
-                $worker->work();
+                $overseer->work();
             } elseif ($pid == -1) {
                 echo "Can't spawn worker #{$i}" . PHP_EOL;
             }
