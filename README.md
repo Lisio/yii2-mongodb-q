@@ -127,7 +127,7 @@ Yii::$app->queue->jobStatus($job->_id);
 ./yii q/spawn
 ```
 
-### Spawn 3 workers and bind them to queues `download` and `report`.
+### Spawn 3 workers and bind them to queues `download` and `report`
 ```
 ./yii q/spawn 3 download,report
 ```
@@ -140,6 +140,21 @@ Yii::$app->queue->jobStatus($job->_id);
 ### Remove stale jobs which keepResultDuration is passed
 ```
 ./yii q/remove-stale-jobs
+```
+
+### Stop workers bound to queues `download` and `report`
+```
+./yii q/stop-workers download,report
+```
+
+### Stop workers bound to all queues (notice how it differs from stopping all workers)
+```
+./yii q/stop-workers
+```
+
+### Stop all workers
+```
+./yii q/stop-all-workers
 ```
 
 GUI
