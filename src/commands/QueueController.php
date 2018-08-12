@@ -36,6 +36,8 @@ class QueueController extends Controller
                 }
 
                 $overseer->work();
+
+                exit;
             } elseif ($pid == -1) {
                 echo "Can't spawn worker #{$i}" . PHP_EOL;
             }
