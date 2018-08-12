@@ -58,50 +58,44 @@ class Overseer extends Component
         $this->_worker->insert();
 
         $changeStream = $this->_getChangeStream();
-        $init = false;
+        $init = true;
         $skip = false;
 
         for ($changeStream->rewind(); true; $changeStream->next()) {
             if ($changeStream->valid()) {
                 $changeStream->current();
                 if ($skip) {
+                    $init = true;
                     continue;
                 }
-            } elseif ($init) {
+            } elseif (!$init) {
                 $this->_heartbeat();
                 continue;
             } else {
-                $init = true;
-            }
-
-            $this->_job = $this->_getJob();
-
-            if ($this->_job === null) {
+                $init = false;
                 $skip = false;
-                continue;
             }
 
-            echo $this->_job->_id . PHP_EOL;
+            while ($this->_job = $this->_getJob()) {
+                echo $this->_job->_id . PHP_EOL;
 
-            try {
-                $worker = new $this->_job->worker;
-                $worker->overseer = $this;
-                $worker->job = $this->_job;
-                $worker->setUp();
-                $result = $worker->work();
-                $worker->tearDown();
+                try {
+                    $worker = new $this->_job->worker;
+                    $worker->overseer = $this;
+                    $worker->job = $this->_job;
+                    $worker->setUp();
+                    $result = $worker->work();
+                    $worker->tearDown();
 
-                $this->_ack($result);
-            } catch (\Exception $e) {
-                $this->_nack($e);
-            } catch (\Error $e) {
-                $this->_nack($e);
+                    $this->_ack($result);
+                } catch (\Exception $e) {
+                    $this->_nack($e);
+                } catch (\Error $e) {
+                    $this->_nack($e);
+                }
+
+                $skip = true;
             }
-
-            $this->_job = null;
-
-            $skip = true;
-            $init = false;
         }
     }
 
