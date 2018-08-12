@@ -58,6 +58,11 @@ return [
 ];
 ```
 
+Create indexes:
+```php
+./yii q/create-indexes
+```
+
 Usage
 -----
 

@@ -8,6 +8,7 @@ use yii\console\Controller;
 
 use yii\q\components\Overseer;
 use yii\q\models\Job;
+use yii\q\models\Queue;
 use yii\q\models\Worker;
 
 /**
@@ -150,5 +151,33 @@ class QueueController extends Controller
 
             $job->delete();
         }
+    }
+
+    /**
+     * Creates indexes for queue server collections.
+     */
+    public function actionCreateIndexes()
+    {
+        Queue::getCollection()->createIndex(['name' => 1]);
+
+        Job::getCollection()->createIndex(['queue' => 1]);
+        Job::getCollection()->createIndex(['status' => 1, 'schedule' => 1, 'primary' => 1, 'priority' => -1, '_id' => 1]);
+        Job::getCollection()->createIndex(['primaryID' => 1]);
+
+        Worker::getCollection()->createIndex(['hostname' => 1, 'heartbeat' => 1]);
+    }
+
+    /**
+     * Removes indexes of queue server collections.
+     */
+    public function actionDropIndexes()
+    {
+        Queue::getCollection()->dropIndex(['name' => 1]);
+
+        Job::getCollection()->dropIndex(['queue' => 1]);
+        Job::getCollection()->dropIndex(['status' => 1, 'schedule' => 1, 'primary' => 1, 'priority' => -1, '_id' => 1]);
+        Job::getCollection()->dropIndex(['primaryID' => 1]);
+
+        Worker::getCollection()->dropIndex(['hostname' => 1, 'heartbeat' => 1]);
     }
 }
