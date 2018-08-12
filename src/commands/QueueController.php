@@ -45,6 +45,29 @@ class QueueController extends Controller
     }
 
     /**
+     * Stops all workers gracefully.
+     */
+    public function actionStopAllWorkers()
+    {
+        Worker::updateAll(['stop' => true]);
+    }
+
+    /**
+     * Stops workers gracefully.
+     * List of queue names must be exactly the same that was used for spawning workers.
+     *
+     * @param string $queues comma-separated list of queue names
+     */
+    public function actionStopWorkers($queues = null)
+    {
+        if ($queues === null) {
+            Worker::updateAll(['stop' => true], ['queues' => ['$eq' => []]]);
+        } else {
+            Worker::updateAll(['stop' => true], ['queues' => ['$eq' => explode(',', $queues)]]);
+        }
+    }
+
+    /**
      * Removes dead workers and puts their jobs in FAIL state.
      *
      * This method should be called by cron at every host where workers are spawned.

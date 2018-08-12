@@ -33,6 +33,7 @@ class Worker extends ActiveRecord
             'heartbeat',
 
             'stats',
+            'stop',
         ];
     }
 

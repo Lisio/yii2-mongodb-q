@@ -62,6 +62,10 @@ class Overseer extends Component
         $skip = false;
 
         for ($changeStream->rewind(); true; $changeStream->next()) {
+            if ($this->_worker->stop) {
+                break;
+            }
+
             if ($changeStream->valid()) {
                 $changeStream->current();
                 if ($skip) {
@@ -95,8 +99,14 @@ class Overseer extends Component
                 }
 
                 $skip = true;
+
+                if ($this->_worker->stop) {
+                    break;
+                }
             }
         }
+
+        $this->_worker->delete();
     }
 
     /**
@@ -217,7 +227,7 @@ class Overseer extends Component
             $query['queue'] = ['$in' => $this->_queues];
         }
 
-        $job = Job::getCollection()->findAndModify(
+        $j = Job::getCollection()->findAndModify(
             $query,
             [
                 '$set' => [
@@ -241,20 +251,20 @@ class Overseer extends Component
             ]
         );
 
-        if ($job === null) {
+        if ($j === null) {
             $this->_heartbeat();
             return null;
         }
 
-        $this->_worker->jobID = $job['_id'];
+        $this->_worker->jobID = $j['_id'];
         $this->_worker->heartbeat = new UTCDateTime(time() * 1000);
         $this->_worker->update();
 
-        $j = new Job;
+        $job = new Job;
 
-        Job::populateRecord($j, $job);
+        Job::populateRecord($job, $j);
 
-        return $j;
+        return $job;
     }
 
     /**
@@ -406,7 +416,7 @@ class Overseer extends Component
      */
     protected function _heartbeat()
     {
-        Worker::getCollection()->findAndModify(
+        $worker = Worker::getCollection()->findAndModify(
             [
                 '_id' => $this->_worker->_id,
             ],
@@ -414,7 +424,14 @@ class Overseer extends Component
                 '$set' => [
                     'heartbeat' => new UTCDateTime(time() * 1000),
                 ],
+            ],
+            [
+                'new' => true,
             ]
         );
+
+        if (isset($worker['stop'])) {
+            $this->_worker->stop = true;
+        }
     }
 }
