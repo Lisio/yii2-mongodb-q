@@ -6,6 +6,7 @@ use MongoDB\BSON\UTCDateTime;
 
 use yii\console\Controller;
 
+use yii\helpers\VarDumper;
 use yii\q\components\Overseer;
 use yii\q\models\Job;
 use yii\q\models\Queue;
@@ -41,6 +42,29 @@ class QueueController extends Controller
             } elseif ($pid == -1) {
                 echo "Can't spawn worker #{$i}" . PHP_EOL;
             }
+        }
+    }
+
+    /**
+     * Stops all workers nicely.
+     */
+    public function actionStopAllWorkers()
+    {
+        Worker::updateAll(['stop' => true]);
+    }
+
+    /**
+     * Stops workers nicely.
+     * List of queue names must be exactly the same that was used for spawning workers.
+     *
+     * @param string $queues comma-separated list of queue names
+     */
+    public function actionStopWorkers($queues = null)
+    {
+        if ($queues === null) {
+            Worker::updateAll(['stop' => true], ['queues' => ['$eq' => []]]);
+        } else {
+            Worker::updateAll(['stop' => true], ['queues' => ['$eq' => explode(',', $queues)]]);
         }
     }
 
