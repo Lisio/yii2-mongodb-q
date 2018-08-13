@@ -37,6 +37,11 @@ class Overseer extends Component
     protected $_job;
 
     /**
+     * @var \yii\mongodb\Collection[] $_collections array of collections for faster access
+     */
+    protected $_collections = [];
+
+    /**
      * Sets queues to bind to.
      *
      * @param array $queues List of queue names to bind to.
@@ -51,6 +56,11 @@ class Overseer extends Component
      */
     public function work()
     {
+        $this->_collections = [
+            'job' => Job::getCollection(),
+            'worker' => Worker::getCollection(),
+        ];
+
         $this->_worker = new Worker;
         $this->_worker->hostname = gethostname();
         $this->_worker->pid = getmypid();
@@ -117,7 +127,7 @@ class Overseer extends Component
     public function setProgress($progress)
     {
         if ($progress !== null) {
-            Job::getCollection()->findAndModify(
+            $this->_collections['job']->findAndModify(
                 [
                     '_id' => $this->_job->_id,
                 ],
@@ -227,7 +237,7 @@ class Overseer extends Component
             $query['queue'] = ['$in' => $this->_queues];
         }
 
-        $j = Job::getCollection()->findAndModify(
+        $j = $this->_collections['job']->findAndModify(
             $query,
             [
                 '$set' => [
@@ -258,7 +268,7 @@ class Overseer extends Component
 
         $this->_worker->jobID = $j['_id'];
         $this->_worker->heartbeat = new UTCDateTime(time() * 1000);
-        $this->_worker->update();
+        $this->_worker->update(false);
 
         $job = new Job;
 
@@ -276,7 +286,7 @@ class Overseer extends Component
     {
         if ($this->_job->keepResult) {
             // Update job status and save result data
-            Job::getCollection()->findAndModify(
+            $this->_collections['job']->findAndModify(
                 [
                     '_id' => $this->_job->_id,
                 ],
@@ -308,7 +318,7 @@ class Overseer extends Component
 
         if ($this->_job->secondary) {
             // Update primary job
-            Job::getCollection()->findAndModify(
+            $this->_collections['job']->findAndModify(
                 [
                     '_id' => $this->_job->primaryID,
                 ],
@@ -323,7 +333,7 @@ class Overseer extends Component
             );
 
             // Change primary job status to IDLE if there are no secondaries left for processing
-            Job::getCollection()->findAndModify(
+            $this->_collections['job']->findAndModify(
                 [
                     '_id' => $this->_job->primaryID,
                     'status' => Job::STATUS_WAIT,
@@ -350,7 +360,7 @@ class Overseer extends Component
 
         $this->_worker->jobID = null;
         $this->_worker->heartbeat = new UTCDateTime(time() * 1000);
-        $this->_worker->update();
+        $this->_worker->update(false);
     }
 
     /**
@@ -361,7 +371,7 @@ class Overseer extends Component
     protected function _nack($e)
     {
         // Update job status and save exception data
-        Job::getCollection()->findAndModify(
+        $this->_collections['job']->findAndModify(
             [
                 '_id' => $this->_job->_id,
             ],
@@ -387,7 +397,7 @@ class Overseer extends Component
 
         if ($this->_job->secondary) {
             // Update primary job
-            Job::getCollection()->findAndModify(
+            $this->_collections['job']->findAndModify(
                 [
                     '_id' => $this->_job->primaryID,
                 ],
@@ -408,7 +418,7 @@ class Overseer extends Component
 
         $this->_worker->jobID = null;
         $this->_worker->heartbeat = new UTCDateTime(time() * 1000);
-        $this->_worker->update();
+        $this->_worker->update(false);
     }
 
     /**
@@ -416,7 +426,7 @@ class Overseer extends Component
      */
     protected function _heartbeat()
     {
-        $worker = Worker::getCollection()->findAndModify(
+        $worker = $this->_collections['worker']->findAndModify(
             [
                 '_id' => $this->_worker->_id,
             ],
