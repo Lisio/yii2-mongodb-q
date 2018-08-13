@@ -26,10 +26,17 @@ class QueueController extends Controller
      */
     public function actionSpawn($teamSize = 1, $queues = null)
     {
+        pcntl_async_signals(true);
+
         for ($i = 1; $i <= $teamSize; ++$i) {
             $pid = pcntl_fork();
             if ($pid == 0) {
                 $overseer = new Overseer;
+
+                pcntl_signal(SIGTERM, [$overseer, 'stop']);
+                pcntl_signal(SIGHUP, [$overseer, 'stop']);
+                pcntl_signal(SIGINT, [$overseer, 'stop']);
+                pcntl_signal(SIGUSR1, [$overseer, 'stop']);
 
                 if ($queues !== null) {
                     $overseer->setQueues(explode(',', $queues));
