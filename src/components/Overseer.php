@@ -143,6 +143,16 @@ class Overseer extends Component
     }
 
     /**
+     * Sets worker's stop flag.
+     */
+    public function stop()
+    {
+        if ($this->_worker) {
+            $this->_worker->stop = true;
+        }
+    }
+
+    /**
      * Subscribes to jobs changes.
      *
      * @return \MongoDB\ChangeStream MongoDB Change Stream
