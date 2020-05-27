@@ -18,7 +18,7 @@
         "php": ">=7.1.0",
         "yiisoft/yii2": "~2.0.14",
         "yiisoft/yii2-mongodb": "~2.1.7",
-        "mongodb/mongodb": "~1.4.2",
+        "mongodb/mongodb": "^1.4.2",
         "dmstr/yii2-adminlte-asset": "~2.6.2"
     },
     "repositories": [
